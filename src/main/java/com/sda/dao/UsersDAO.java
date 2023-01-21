@@ -43,12 +43,13 @@ public class UsersDAO {
         }
     }
 
-    public void update(User updatedUser) {
-        try (Session session = HibernateUtils.getSessionFactory().openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.merge(updatedUser);
-            transaction.commit();
-        }
+    public User update(User updatedUser) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+        User updateUser = session.merge(updatedUser);
+        transaction.commit();
+        session.close();
+        return updateUser;
     }
 
     public boolean exist(String username) {
