@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 class UsersDAOTest {
@@ -86,6 +87,43 @@ class UsersDAOTest {
             User user = session.get(User.class, username);
             Assertions.assertNull(user);
         }
+    }
+
+    @Test
+    void testFindAll() {
+        //give
+        String username1 = UUID.randomUUID().toString();
+        String username2 = UUID.randomUUID().toString();
+
+        User user1 = createUser(username1);
+        User user2 = createUser(username2);
+
+        List<User> expectedUsers = List.of(
+                user1, user2
+        );
+
+        expectedUsers.forEach(usersDAO::create);
+
+//        usersDAO.create(user1);
+//        usersDAO.create(user2);
+
+        //when
+        List<User> actualUsers = usersDAO.findAll();
+
+        //then
+        Assertions.assertEquals(expectedUsers.size(),actualUsers.size());
+        Assertions.assertEquals(expectedUsers,actualUsers);
+
+    }
+
+    public User createUser(String username) {
+        return User.builder()
+                .username(username)
+                .password("password")
+                .name("name")
+                .surname("surname")
+                .email("example@email.com")
+                .age(30).build();
     }
 
 }

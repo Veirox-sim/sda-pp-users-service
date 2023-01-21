@@ -5,6 +5,8 @@ import com.sda.model.User;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import java.util.List;
+
 public class UsersDAO {
 
     public void create(User user) {
@@ -25,5 +27,12 @@ public class UsersDAO {
             transaction.commit();
             return user != null;
         }
+    }
+
+    public List<User> findAll() {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        List<User> users = session.createQuery("SELECT u from User u", User.class).list();
+        session.close();
+        return users;
     }
 }
