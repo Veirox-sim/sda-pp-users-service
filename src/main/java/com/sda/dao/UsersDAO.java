@@ -35,4 +35,31 @@ public class UsersDAO {
         session.close();
         return users;
     }
+
+    public User findByUsername(String username) {
+
+        try (Session session = HibernateUtils.getSessionFactory().openSession()) {
+            return session.find(User.class, username);
+        }
+    }
+
+    public void update(User updatedUser) {
+        try (Session session = HibernateUtils.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.merge(updatedUser);
+            transaction.commit();
+        }
+    }
+
+    public boolean exist(String username) {
+        Session session = HibernateUtils.getSessionFactory().openSession();
+        String query =
+                "SELECT count(u) FROM User u WHERE u.username =:username";
+
+        boolean exists = session.createQuery(query, Long.class)
+                .setParameter("username", username)
+                .uniqueResult() > 0;
+        session.close();
+        return exists;
+    }
 }

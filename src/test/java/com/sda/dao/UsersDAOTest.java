@@ -111,9 +111,20 @@ class UsersDAOTest {
         List<User> actualUsers = usersDAO.findAll();
 
         //then
-        Assertions.assertEquals(expectedUsers.size(),actualUsers.size());
-        Assertions.assertEquals(expectedUsers,actualUsers);
+        Assertions.assertEquals(expectedUsers.size(), actualUsers.size());
+        Assertions.assertEquals(expectedUsers, actualUsers);
 
+    }
+
+    @Test
+    void testFindByUsername() {
+        //give
+        String username1 = UUID.randomUUID().toString();
+        usersDAO.create(createUser(username1));
+        //when
+        User user2 = usersDAO.findByUsername(username1);
+        //then
+        Assertions.assertEquals(username1, user2.getUsername());
     }
 
     public User createUser(String username) {
@@ -124,6 +135,54 @@ class UsersDAOTest {
                 .surname("surname")
                 .email("example@email.com")
                 .age(30).build();
+    }
+
+    @Test
+    void testUpdateSuccess() {
+        // given
+        String username = UUID.randomUUID().toString();
+        User expectedUser = createUser(username);
+        usersDAO.create(expectedUser);
+
+        expectedUser.setName("changed_name");
+        expectedUser.setEmail("changed_example@email.com");
+
+        // when
+        usersDAO.update(expectedUser);
+
+        // then
+        User updatedUser;
+        try (Session session = HibernateUtils.getSessionFactory().openSession()) {
+            updatedUser = session.find(User.class, username);
+        }
+
+        Assertions.assertNotNull(updatedUser);
+        Assertions.assertEquals(expectedUser, updatedUser);
+        Assertions.assertEquals(expectedUser.getName(), updatedUser.getName());
+        Assertions.assertEquals(expectedUser.getSurname(), updatedUser.getSurname());
+        Assertions.assertEquals(expectedUser.getPassword(), updatedUser.getPassword());
+        Assertions.assertEquals(expectedUser.getAge(), updatedUser.getAge());
+        Assertions.assertEquals(expectedUser.getEmail(), updatedUser.getEmail());
+
+    }
+
+    @Test
+    void testExistsByUsernameUserNotFound(){
+        String nonExistingUserName = UUID.randomUUID().toString();
+
+        boolean exists =usersDAO.exist(nonExistingUserName);
+        Assertions.assertFalse(exists);
+    }
+
+    @Test
+    void testExistsByUsernameUserExists(){
+        String userName = UUID.randomUUID().toString();
+
+        User user =createUser(userName);
+        usersDAO.create(user);
+
+        boolean exists = usersDAO.exist(userName);
+        Assertions.assertTrue(exists);
     }
 
 }

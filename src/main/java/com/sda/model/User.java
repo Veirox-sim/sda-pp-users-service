@@ -22,7 +22,7 @@ public class User {
     private String password;
     private String name;
     private String surname;
-    private Integer age;
+    private int age;
     private String email;
 
     @Override
